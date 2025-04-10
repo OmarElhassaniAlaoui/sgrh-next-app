@@ -19,16 +19,75 @@ model User {
 }
 
 model Employee {
-  id             String   @id @default(uuid())
-  name           String
-  cin            String   @unique
-  ppr            String   @unique
-  surname        String
-  grade          String
-  division       String
-  service        String
-  decisionNumber String
-  decisionDate   DateTime
-  address        String
-  createdAt      DateTime @default(now())
+  id                 String              @id @default(uuid())
+  cin                String              @unique
+  ppr                String              @unique
+  firstName          String
+  lastName           String
+  grade              String
+  ladder             String              @default("")
+  service            String
+  division           String
+  decisionNumber     String?
+  decisionDate       DateTime?
+  address            String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  leaveRequests      LeaveRequest[]
+  replacementFor     LeaveRequest[]      @relation("ReplacementEmployee")
+  annualLeaveBalance AnnualLeaveBalance?
+}
+
+model AnnualLeaveBalance {
+  id                  String   @id @default(uuid())
+  employeeId          String   @unique
+  employee            Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  currentYearBalance  Int      @default(22)
+  specialPermissions  Int      @default(10)
+  previousYearBalance Int      @default(0)
+  year                Int
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model LeaveRequest {
+  id                  String      @id @default(uuid())
+  employeeId          String
+  employee            Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leaveType           LeaveType
+  startDate           DateTime
+  endDate             DateTime
+  duration            Int
+  status              LeaveStatus @default(PENDING)
+  replacementId       String?
+  replacementEmployee Employee?   @relation("ReplacementEmployee", fields: [replacementId], references: [id])
+  reason              String?
+  notes               String?
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+  approvedById        String?
+  approvedBy          String?
+  approvedAt          DateTime?
+}
+
+enum Role {
+  ADMIN
+  HR_MANAGER
+}
+
+enum LeaveType {
+  ANNUAL
+  SPECIAL_PERMISSION
+  SICK
+  MATERNITY
+  HAJJ
+  MARRIAGE
+  BEREAVEMENT
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
 }
