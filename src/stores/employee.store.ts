@@ -28,21 +28,31 @@ export const useEmployeeStore = create<EmployeeState>()((set, get) => ({
   fetchEmployees: async () => {
     set({ isLoading: true, error: null });
     try {
-      const employees = await fetch("/api/employees").then((res) => res.json());
+      const response = await fetch("/api/employees");
+      if (!response.ok) throw new Error("Failed to fetch");
+      const employees = await response.json();
       set({ employees, isLoading: false });
     } catch (error) {
-      set({ error: "Failed to fetch employees", isLoading: false });
+      set({
+        error:
+          error instanceof Error ? error.message : "Failed to fetch employees",
+        isLoading: false,
+      });
     }
   },
 
   addEmployee: async (employee) => {
     set({ isLoading: true, error: null });
     try {
-      const newEmployee = await fetch("/api/employees", {
+      const response = await fetch("/api/employees", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(employee),
-      }).then((res) => res.json());
+      });
+
+      if (!response.ok) throw new Error("Failed to add employee");
+
+      const newEmployee = await response.json();
 
       set((state) => ({
         employees: [...state.employees, newEmployee],
@@ -51,7 +61,11 @@ export const useEmployeeStore = create<EmployeeState>()((set, get) => ({
 
       return newEmployee;
     } catch (error) {
-      set({ error: "Failed to add employee", isLoading: false });
+      set({
+        error:
+          error instanceof Error ? error.message : "Failed to add employee",
+        isLoading: false,
+      });
       throw error;
     }
   },
@@ -59,11 +73,15 @@ export const useEmployeeStore = create<EmployeeState>()((set, get) => ({
   updateEmployee: async (id, data) => {
     set({ isLoading: true, error: null });
     try {
-      const updatedEmployee = await fetch(`/api/employees/${id}`, {
+      const response = await fetch(`/api/employees/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
-      }).then((res) => res.json());
+      });
+
+      if (!response.ok) throw new Error("Failed to update employee");
+
+      const updatedEmployee = await response.json();
 
       set((state) => ({
         employees: state.employees.map((emp) =>
@@ -74,7 +92,11 @@ export const useEmployeeStore = create<EmployeeState>()((set, get) => ({
 
       return updatedEmployee;
     } catch (error) {
-      set({ error: "Failed to update employee", isLoading: false });
+      set({
+        error:
+          error instanceof Error ? error.message : "Failed to update employee",
+        isLoading: false,
+      });
       throw error;
     }
   },
@@ -82,13 +104,22 @@ export const useEmployeeStore = create<EmployeeState>()((set, get) => ({
   deleteEmployee: async (id) => {
     set({ isLoading: true, error: null });
     try {
-      await fetch(`/api/employees/${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/employees/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) throw new Error("Failed to delete employee");
+
       set((state) => ({
         employees: state.employees.filter((emp) => emp.id !== id),
         isLoading: false,
       }));
     } catch (error) {
-      set({ error: "Failed to delete employee", isLoading: false });
+      set({
+        error:
+          error instanceof Error ? error.message : "Failed to delete employee",
+        isLoading: false,
+      });
       throw error;
     }
   },
