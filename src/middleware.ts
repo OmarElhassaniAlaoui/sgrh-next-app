@@ -1,27 +1,39 @@
-import { NextResponse, NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { cookies } from "next/headers";
+import { NextRequest, NextResponse } from "next/server";
+import { decrypt } from "@/lib/session";
 
-const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key";
+const protectedRoutes = ["/dashboard", "/employees", "/leaves", "/settings"];
+const publicRoutes = ["/login", "/"];
 
-export function middleware(request: NextRequest) {
-  const token = request.cookies.get("auth_token")?.value;
+export default async function middleware(req: NextRequest) {
+  const path = req.nextUrl.pathname;
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    path.startsWith(route)
+  );
+  const isPublicRoute = publicRoutes.includes(path);
 
-  if (request.nextUrl.pathname.startsWith("/dashboard")) {
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
+  const cookie = (await cookies()).get("session")?.value;
+  const session = await decrypt(cookie);
 
-    try {
-      jwt.verify(token, SECRET_KEY);
-      return NextResponse.next();
-    } catch (error) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
+  console.log("Middleware:", { path, session: !!session?.userId });
+
+  if (isProtectedRoute && !session?.userId) {
+    return NextResponse.redirect(new URL("/login", req.nextUrl));
+  }
+
+  if (isPublicRoute && session?.userId) {
+    return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/employees/:path*",
+    "/leaves/:path*",
+    "/settings/:path*",
+    "/login",
+  ],
 };
