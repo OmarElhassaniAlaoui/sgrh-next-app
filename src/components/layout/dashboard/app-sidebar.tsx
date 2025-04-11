@@ -1,3 +1,5 @@
+"use client";
+
 import {
   LayoutDashboard,
   FilePlus,
@@ -6,7 +8,6 @@ import {
   List,
   GalleryVerticalEnd,
 } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -20,44 +21,30 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-// Menu items.
 const menuItems = [
-  {
-    title: "Dashboard",
-    icon: LayoutDashboard,
-    url: "/",
-  },
-  {
-    title: "Employees",
-    icon: FilePlus,
-    url: "/employees",
-  },
-  {
-    title: "Leave Requests",
-    icon: List,
-    url: "/leaves",
-  },
-  {
-    title: "Settings",
-    icon: Settings,
-    url: "/settings",
-  },
-  {
-    title: "template",
-    icon: List,
-    url: "/dashboard/template",
-  },
+  { title: "Dashboard", icon: LayoutDashboard, url: "/dashboard" },
+  { title: "Employees", icon: FilePlus, url: "/dashboard/employees" },
+  { title: "Leave Requests", icon: List, url: "/dashboard/leaves" },
+  { title: "Settings", icon: Settings, url: "/dashboard/settings" },
 ];
 
 export function AppSidebar() {
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+  };
+
   return (
     <Sidebar variant="floating" collapsible="icon" className="">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <a href="/dashboard">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <GalleryVerticalEnd className="size-4" />
                 </div>
@@ -89,7 +76,10 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenuButton className="flex items-center gap-2 w-full">
+        <SidebarMenuButton
+          className="flex items-center gap-2 w-full"
+          onClick={handleLogout}
+        >
           <LogOut className="h-4 w-4" />
           <span>Déconnexion</span>
         </SidebarMenuButton>

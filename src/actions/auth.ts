@@ -1,8 +1,20 @@
-"use server"; // Marks this file as server-only
+"use server";
 
 import { login } from "@/services/auth";
+import { cookies } from "next/headers";
 
 export async function authenticate(username: string, password: string) {
-  const success = await login(username, password);
-  return success;
+  console.log("Authenticate called with:", { username, password });
+  const result = await login(username, password);
+  console.log("Login result:", result);
+  if (result) {
+    (await cookies()).set("auth_token", result.token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 3600,
+      path: "/",
+    });
+    return true;
+  }
+  return false;
 }

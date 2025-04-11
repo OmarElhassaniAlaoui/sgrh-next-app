@@ -16,7 +16,7 @@ export default function LoginPage({
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [isPending, startTransition] = useTransition(); // For handling async state
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const handleSubmit = async (formData: FormData) => {
@@ -26,7 +26,7 @@ export default function LoginPage({
 
       const success = await authenticate(username, password);
       if (success) {
-        router.push("/dashboard");
+        router.push("/");
       } else {
         setError("Invalid username or password");
       }
@@ -43,7 +43,6 @@ export default function LoginPage({
     >
       <Card className="overflow-hidden w-full max-w-4xl">
         <CardContent className="grid p-0 md:grid-cols-2">
-          {/* Form Section */}
           <form
             action={handleSubmit}
             className="flex flex-col items-center justify-center p-6 md:p-8"
@@ -57,11 +56,11 @@ export default function LoginPage({
                   <Label htmlFor="username">Username</Label>
                   <Input
                     id="username"
-                    name="username" // Required for FormData
+                    name="username"
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    placeholder="admin"
+                    placeholder=""
                     required
                     disabled={isPending}
                   />
@@ -70,7 +69,7 @@ export default function LoginPage({
                   <Label htmlFor="password">Password</Label>
                   <Input
                     id="password"
-                    name="password" // Required for FormData
+                    name="password"
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -86,8 +85,6 @@ export default function LoginPage({
               </Button>
             </div>
           </form>
-
-          {/* Image/Info Section */}
           <div className="relative hidden bg-muted md:block">
             <div className="m-10 flex flex-col items-center justify-center h-full">
               <h1 className="text-3xl font-bold text-center">
