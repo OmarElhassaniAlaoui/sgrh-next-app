@@ -1,20 +1,41 @@
 "use server";
 
-import { login } from "@/services/auth";
-import { cookies } from "next/headers";
+import { z } from "zod";
+import prisma from "@/lib/prisma";
+import bcrypt from "bcryptjs";
+import { createSession, deleteSession } from "../lib/session";
+import { redirect } from "next/navigation";
 
-export async function authenticate(username: string, password: string) {
-  console.log("Authenticate called with:", { username, password });
-  const result = await login(username, password);
-  console.log("Login result:", result);
-  if (result) {
-    (await cookies()).set("auth_token", result.token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      maxAge: 3600,
-      path: "/",
-    });
-    return true;
+const loginSchema = z.object({
+  username: z.string().min(1, "Username is required").trim(),
+  password: z.string().min(1, "Password is required").trim(),
+});
+
+export async function login(prevState: any, formData: FormData) {
+  const result = loginSchema.safeParse(Object.fromEntries(formData));
+
+  if (!result.success) {
+    return {
+      errors: result.error.flatten().fieldErrors,
+    };
   }
-  return false;
+
+  const { username, password } = result.data;
+
+  const user = await prisma.user.findUnique({ where: { username } });
+  if (!user || !(await bcrypt.compare(password, user.password))) {
+    return {
+      errors: {
+        username: ["Invalid username or password"],
+      },
+    };
+  }
+
+  await createSession(user.id);
+  redirect("/");
+}
+
+export async function logout() {
+  await deleteSession();
+  redirect("/login");
 }

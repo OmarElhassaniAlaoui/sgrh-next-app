@@ -7,32 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authenticate } from "@/actions/auth";
+import { login } from "@/actions/auth";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 
 export default function LoginPage({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [isPending, startTransition] = useTransition();
-  const router = useRouter();
-
-  const handleSubmit = async (formData: FormData) => {
-    startTransition(async () => {
-      const username = formData.get("username") as string;
-      const password = formData.get("password") as string;
-
-      const success = await authenticate(username, password);
-      if (success) {
-        router.push("/");
-      } else {
-        setError("Invalid username or password");
-      }
-    });
-  };
-
+  const [state, loginAction] = useActionState(login, undefined);
+  const { pending } = useFormStatus();
   return (
     <div
       className={cn(
@@ -44,7 +28,7 @@ export default function LoginPage({
       <Card className="overflow-hidden w-full max-w-4xl">
         <CardContent className="grid p-0 md:grid-cols-2">
           <form
-            action={handleSubmit}
+            action={loginAction}
             className="flex flex-col items-center justify-center p-6 md:p-8"
           >
             <div className="flex flex-col gap-6 w-full max-w-sm">
@@ -58,12 +42,15 @@ export default function LoginPage({
                     id="username"
                     name="username"
                     type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
                     placeholder=""
                     required
-                    disabled={isPending}
+                    disabled={pending}
                   />
+                  {state?.errors?.username && (
+                    <p className="text-destructive text-sm">
+                      {state.errors.username}
+                    </p>
+                  )}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="password">Password</Label>
@@ -71,17 +58,19 @@ export default function LoginPage({
                     id="password"
                     name="password"
                     type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
                     required
-                    disabled={isPending}
+                    disabled={pending}
                   />
                 </div>
-                {error && <p className="text-destructive text-sm">{error}</p>}
+                {state?.errors?.password && (
+                  <p className="text-destructive text-sm">
+                    {state.errors.password}
+                  </p>
+                )}
               </div>
-              <Button type="submit" className="w-full" disabled={isPending}>
-                {isPending ? "Logging in..." : "Login"}
+              <Button type="submit" className="w-full" disabled={pending}>
+                {pending ? "Logging in..." : "Login"}
               </Button>
             </div>
           </form>

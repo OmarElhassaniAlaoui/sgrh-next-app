@@ -22,20 +22,20 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { logout } from "@/actions/auth";
 
 const menuItems = [
-  { title: "Dashboard", icon: LayoutDashboard, url: "/dashboard" },
-  { title: "Employees", icon: FilePlus, url: "/dashboard/employees" },
-  { title: "Leave Requests", icon: List, url: "/dashboard/leaves" },
-  { title: "Settings", icon: Settings, url: "/dashboard/settings" },
+  { title: "Dashboard", icon: LayoutDashboard, url: "/" },
+  { title: "Employees", icon: FilePlus, url: "/employees" },
+  { title: "Leave Requests", icon: List, url: "/leaves" },
+  { title: "Settings", icon: Settings, url: "/settings" },
 ];
 
 export function AppSidebar() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    await logout();
   };
 
   return (
@@ -44,14 +44,14 @@ export function AppSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/dashboard">
+              <Link href="/">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <GalleryVerticalEnd className="size-4" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold">SGRH-TIZNIT</span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
