@@ -181,17 +181,21 @@ export default function EmployeesPage() {
   };
 
   if (isLoading) return <div>Loading employees...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (isLoading) return <div className="p-6">Loading employees...</div>; // Added padding
+  if (error) return <div className="p-6 text-red-500">Error: {error}</div>; // Added padding and error color
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="p-4 sm:p-6 space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold">Employee Management</h1>
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
             <Button>Add Employee</Button>
           </DialogTrigger>
-          <DialogContent>
+          {/* Responsive Dialog Content */}
+          <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+            {" "}
+            {/* Max width and scroll */}
             <DialogHeader>
               <DialogTitle>Add New Employee</DialogTitle>
             </DialogHeader>
@@ -271,58 +275,82 @@ export default function EmployeesPage() {
           </DialogContent>
         </Dialog>
       </div>
-
       <div className="mb-4">
         <Input
-          placeholder="Search employees..."
+          placeholder="Search employees by name, CIN, PPR..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="max-w-sm"
+          className="w-full sm:max-w-sm" // Responsive width
         />
       </div>
-
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>CIN</TableHead>
-            <TableHead>PPR</TableHead>
-            <TableHead>Grade</TableHead>
-            <TableHead>Division</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {employees.map((employee) => (
-            <TableRow key={employee.id}>
-              <TableCell>{`${employee.firstName} ${employee.lastName}`}</TableCell>
-              <TableCell>{employee.cin}</TableCell>
-              <TableCell>{employee.ppr}</TableCell>
-              <TableCell>{employee.grade || "-"}</TableCell>
-              <TableCell>{employee.division || "-"}</TableCell>
-              <TableCell>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => openEditDialog(employee)}
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => openDeleteDialog(employee.id)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </TableCell>
+      <div className="border rounded-lg overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="min-w-[150px]">Name</TableHead>
+              <TableHead className="min-w-[100px]">CIN</TableHead>
+              <TableHead className="min-w-[100px]">PPR</TableHead>
+              <TableHead className="hidden md:table-cell min-w-[100px]">
+                Grade
+              </TableHead>
+              <TableHead className="hidden lg:table-cell min-w-[120px]">
+                Division
+              </TableHead>
+              <TableHead className="text-right min-w-[100px]">
+                Actions
+              </TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
+          </TableHeader>
+          <TableBody>
+            {employees.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="h-24 text-center">
+                  No employees found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              employees.map((employee) => (
+                <TableRow key={employee.id}>
+                  <TableCell className="font-medium">{`${employee.firstName} ${employee.lastName}`}</TableCell>
+                  <TableCell>{employee.cin}</TableCell>
+                  <TableCell>{employee.ppr}</TableCell>
+                  <TableCell className="hidden md:table-cell">
+                    {employee.grade || "-"}
+                  </TableCell>
+                  <TableCell className="hidden lg:table-cell">
+                    {employee.division || "-"}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 mr-1"
+                      onClick={() => openEditDialog(employee)}
+                      title="Edit Employee"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-red-600 hover:text-red-700"
+                      onClick={() => openDeleteDialog(employee.id)}
+                      title="Delete Employee"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
-        <DialogContent>
+        {/* Responsive Dialog Content */}
+        <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
+          {" "}
+          {/* Max width and scroll */}
           <DialogHeader>
             <DialogTitle>Edit Employee</DialogTitle>
           </DialogHeader>
@@ -401,7 +429,6 @@ export default function EmployeesPage() {
           </Form>
         </DialogContent>
       </Dialog>
-
       <ConfirmDeleteDialog
         isOpen={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
