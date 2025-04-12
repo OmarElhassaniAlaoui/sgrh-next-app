@@ -31,7 +31,9 @@ export async function login(prevState: any, formData: FormData) {
     };
   }
 
-  await createSession(user.id);
+  const session = await createSession(user.id);
+  console.log("Session created:", session); // Log the session token
+
   redirect("/");
 }
 
