@@ -30,6 +30,7 @@ const menuItems = [
   { title: "Leave Requests", icon: List, url: "/leaves" },
   { title: "Reports", icon: List, url: "/reports" },
   { title: "Settings", icon: Settings, url: "/settings" },
+  { title: "Reports", icon: FilePlus, url: "/reports" },
 ];
 
 export function AppSidebar() {

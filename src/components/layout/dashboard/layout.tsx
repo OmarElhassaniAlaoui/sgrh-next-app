@@ -10,7 +10,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         <AppSidebar />
         <SidebarInset>
           <Header />
-          <main className="flex-1 overflow-y-auto p-4">{children}</main>
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+              {children}
+            </div>
+          </div>
         </SidebarInset>
       </div>
     </SidebarProvider>
