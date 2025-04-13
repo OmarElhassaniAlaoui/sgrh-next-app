@@ -29,6 +29,7 @@ const menuItems = [
   { title: "Employees", icon: FilePlus, url: "/employees" },
   { title: "Leave Requests", icon: List, url: "/leaves" },
   { title: "Settings", icon: Settings, url: "/settings" },
+  { title: "Reports", icon: FilePlus, url: "/reports" },
 ];
 
 export function AppSidebar() {
