@@ -1,28 +1,27 @@
 import { create } from "zustand";
-import { LeaveRequest, LeaveStatus } from "@prisma/client";
+import { LeaveRequest, LeaveStatus, LeaveType } from "@prisma/client";
+import { calculateWorkingDays } from "@/utils/date-utils";
 
 interface LeaveState {
   leaveRequests: LeaveRequest[];
   isLoading: boolean;
   error: string | null;
   fetchLeaveRequests: () => Promise<void>;
-  createLeaveRequest: (
-    leave: Omit<
-      LeaveRequest,
-      | "id"
-      | "createdAt"
-      | "updatedAt"
-      | "status"
-      | "approvedById"
-      | "approvedBy"
-      | "approvedAt"
-    >
-  ) => Promise<LeaveRequest>;
+  createLeaveRequest: (leave: {
+    employeeId: string;
+    leaveType: LeaveType;
+    startDate: Date;
+    endDate: Date;
+    reason?: string;
+    notes?: string;
+    replacementId?: string;
+  }) => Promise<LeaveRequest>;
   updateLeaveStatus: (
     id: string,
     status: LeaveStatus,
     approvedBy?: string
   ) => Promise<LeaveRequest>;
+  deleteLeaveRequest: (id: string) => Promise<void>;
   getEmployeeLeaves: (employeeId: string) => LeaveRequest[];
   calculateLeaveDuration: (startDate: Date, endDate: Date) => number;
   getDashboardStats: (
@@ -46,32 +45,34 @@ export const useLeaveStore = create<LeaveState>()((set, get) => ({
   fetchLeaveRequests: async () => {
     set({ isLoading: true, error: null });
     try {
-      const leaves = await fetch("/api/leaves").then((res) => res.json());
+      const response = await fetch("/api/leaves");
+      if (!response.ok) throw new Error("Failed to fetch leave requests");
+      const leaves = await response.json();
       set({ leaveRequests: leaves, isLoading: false });
     } catch (error) {
-      set({ error: "Failed to fetch leave requests", isLoading: false });
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to fetch leave requests";
+      set({ error: message, isLoading: false });
     }
   },
 
   createLeaveRequest: async (leave) => {
     set({ isLoading: true, error: null });
     try {
-      const duration = get().calculateLeaveDuration(
-        leave.startDate,
-        leave.endDate
-      );
-      const newLeave = {
-        ...leave,
-        duration,
-        status: "PENDING" as LeaveStatus,
-      };
-
-      const createdLeave = await fetch("/api/leaves", {
+      const response = await fetch("/api/leaves", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newLeave),
-      }).then((res) => res.json());
+        body: JSON.stringify(leave),
+      });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to create leave request");
+      }
+
+      const createdLeave = await response.json();
       set((state) => ({
         leaveRequests: [...state.leaveRequests, createdLeave],
         isLoading: false,
@@ -79,8 +80,12 @@ export const useLeaveStore = create<LeaveState>()((set, get) => ({
 
       return createdLeave;
     } catch (error) {
-      set({ error: "Failed to create leave request", isLoading: false });
-      throw error;
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to create leave request";
+      set({ error: message, isLoading: false });
+      throw new Error(message);
     }
   },
 
@@ -90,15 +95,20 @@ export const useLeaveStore = create<LeaveState>()((set, get) => ({
       const updatedData: any = { status };
       if (status === "APPROVED" && approvedBy) {
         updatedData.approvedBy = approvedBy;
-        updatedData.approvedAt = new Date();
       }
 
-      const updatedLeave = await fetch(`/api/leaves/${id}`, {
+      const response = await fetch(`/api/leaves/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData),
-      }).then((res) => res.json());
+      });
 
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to update leave status");
+      }
+
+      const updatedLeave = await response.json();
       set((state) => ({
         leaveRequests: state.leaveRequests.map((leave) =>
           leave.id === id ? updatedLeave : leave
@@ -108,8 +118,38 @@ export const useLeaveStore = create<LeaveState>()((set, get) => ({
 
       return updatedLeave;
     } catch (error) {
-      set({ error: "Failed to update leave status", isLoading: false });
-      throw error;
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to update leave status";
+      set({ error: message, isLoading: false });
+      throw new Error(message);
+    }
+  },
+
+  deleteLeaveRequest: async (id) => {
+    set({ isLoading: true, error: null });
+    try {
+      const response = await fetch(`/api/leaves/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to delete leave request");
+      }
+
+      set((state) => ({
+        leaveRequests: state.leaveRequests.filter((leave) => leave.id !== id),
+        isLoading: false,
+      }));
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to delete leave request";
+      set({ error: message, isLoading: false });
+      throw new Error(message);
     }
   },
 
@@ -120,17 +160,7 @@ export const useLeaveStore = create<LeaveState>()((set, get) => ({
   },
 
   calculateLeaveDuration: (startDate, endDate) => {
-    let duration = 0;
-    const currentDate = new Date(startDate);
-    const end = new Date(endDate);
-
-    while (currentDate <= end) {
-      const day = currentDate.getDay();
-      if (day !== 0 && day !== 6) duration++;
-      currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    return duration;
+    return calculateWorkingDays(startDate, endDate);
   },
 
   getDashboardStats: (filterType, startDate, endDate) => {
@@ -193,11 +223,7 @@ export const useLeaveStore = create<LeaveState>()((set, get) => ({
           leaveDate.getFullYear() === now.getFullYear()
         );
       });
-
-      monthlyData.push({
-        month: months[i],
-        count: monthLeaves.length,
-      });
+      monthlyData.push({ month: months[i], count: monthLeaves.length });
     }
 
     return { total, approved, rejected, cancelled, monthlyData };

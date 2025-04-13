@@ -13,11 +13,8 @@ export default async function middleware(req: NextRequest) {
   const isPublicRoute = publicRoutes.includes(path);
 
   const cookie = (await cookies()).get("session")?.value;
-  console.log("Middleware:", { path, cookie });
 
   const session = await decrypt(cookie);
-
-  console.log("Session verified:", { session: !!session?.userId });
 
   if (isProtectedRoute && !session?.userId) {
     console.log("Redirecting to login: No valid session");
@@ -25,7 +22,6 @@ export default async function middleware(req: NextRequest) {
   }
 
   if (isPublicRoute && session?.userId) {
-    console.log("Redirecting to dashboard: Already logged in");
     return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 
