@@ -28,6 +28,7 @@ const menuItems = [
   { title: "Dashboard", icon: LayoutDashboard, url: "/" },
   { title: "Employees", icon: FilePlus, url: "/employees" },
   { title: "Leave Requests", icon: List, url: "/leaves" },
+  { title: "Reports", icon: List, url: "/reports" },
   { title: "Settings", icon: Settings, url: "/settings" },
 ];
 
