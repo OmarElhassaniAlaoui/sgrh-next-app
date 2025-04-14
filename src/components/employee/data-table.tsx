@@ -75,14 +75,12 @@ export function EmployeeDataTable({ data }: EmployeeDataTableProps) {
     <div className="w-full space-y-4">
       <DataTable table={table}>
         <DataTableToolbar table={table}>
-          {/* Basic input filter example (can be enhanced) */}
+          {/* Filter for CIN */}
           <input
-            placeholder="Filter names..."
-            value={
-              (table.getColumn("firstName")?.getFilterValue() as string) ?? ""
-            }
+            placeholder="Filter CINs..."
+            value={(table.getColumn("cin")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
-              table.getColumn("firstName")?.setFilterValue(event.target.value)
+              table.getColumn("cin")?.setFilterValue(event.target.value)
             }
             className="h-8 w-[150px] lg:w-[250px] border p-2 rounded"
           />

@@ -30,7 +30,7 @@ export const columns: ColumnDef<Employee>[] = [
       variant: "text",
       icon: Text,
     },
-    enableColumnFilter: true,
+    // enableColumnFilter: true, // Disable filter for firstName
     enableSorting: true,
   },
   {
@@ -39,13 +39,13 @@ export const columns: ColumnDef<Employee>[] = [
       <DataTableColumnHeader column={column} title="Last Name" />
     ),
     cell: ({ row }) => <div>{row.getValue("lastName")}</div>,
-    meta: {
-      label: "Last Name",
-      placeholder: "Search last names...",
-      variant: "text",
-      icon: Text,
-    },
-    enableColumnFilter: true,
+    // meta: {
+    //   label: "Last Name",
+    //   placeholder: "Search last names...",
+    //   variant: "text",
+    //   icon: Text,
+    // },
+    // enableColumnFilter: true, // Disable filter for lastName
     enableSorting: true,
   },
   {
@@ -54,13 +54,13 @@ export const columns: ColumnDef<Employee>[] = [
       <DataTableColumnHeader column={column} title="CIN" />
     ),
     cell: ({ row }) => <div>{row.getValue("cin")}</div>,
-    meta: {
-      label: "CIN",
-      placeholder: "Search CINs...",
-      variant: "text",
-      icon: Text, // Consider a more specific icon if available
-    },
-    enableColumnFilter: true,
+    // meta: {
+    //   label: "CIN",
+    //   placeholder: "Search CINs...",
+    //   variant: "text",
+    //   icon: Text, // Consider a more specific icon if available
+    // },
+    enableColumnFilter: true, // Keep filter enabled for CIN
     enableSorting: true,
   },
   {
@@ -69,12 +69,12 @@ export const columns: ColumnDef<Employee>[] = [
       <DataTableColumnHeader column={column} title="PPR" />
     ),
     cell: ({ row }) => <div>{row.getValue("ppr")}</div>,
-    meta: {
-      label: "PPR",
-      placeholder: "Search PPRs...",
-      variant: "text",
-      icon: Text, // Consider a more specific icon if available
-    },
+    // meta: {
+    //   label: "PPR",
+    //   placeholder: "Search PPRs...",
+    //   variant: "text",
+    //   icon: Text, // Consider a more specific icon if available
+    // },
     enableColumnFilter: true,
     enableSorting: true,
   },
