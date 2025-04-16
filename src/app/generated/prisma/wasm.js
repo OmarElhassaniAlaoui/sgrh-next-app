@@ -111,6 +111,9 @@ Prisma.NullTypes = {
  */
 
 exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
+  ReadUncommitted: 'ReadUncommitted',
+  ReadCommitted: 'ReadCommitted',
+  RepeatableRead: 'RepeatableRead',
   Serializable: 'Serializable'
 });
 
@@ -123,17 +126,48 @@ exports.Prisma.UserScalarFieldEnum = {
 
 exports.Prisma.EmployeeScalarFieldEnum = {
   id: 'id',
-  name: 'name',
   cin: 'cin',
   ppr: 'ppr',
-  surname: 'surname',
+  firstName: 'firstName',
+  lastName: 'lastName',
   grade: 'grade',
-  division: 'division',
+  ladder: 'ladder',
   service: 'service',
+  division: 'division',
   decisionNumber: 'decisionNumber',
   decisionDate: 'decisionDate',
   address: 'address',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AnnualLeaveBalanceScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  currentYearBalance: 'currentYearBalance',
+  specialPermissions: 'specialPermissions',
+  previousYearBalance: 'previousYearBalance',
+  year: 'year',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LeaveRequestScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  leaveType: 'leaveType',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  duration: 'duration',
+  status: 'status',
+  replacementId: 'replacementId',
+  reason: 'reason',
+  notes: 'notes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  approvedById: 'approvedById',
+  approvedBy: 'approvedBy',
+  approvedAt: 'approvedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -141,10 +175,37 @@ exports.Prisma.SortOrder = {
   desc: 'desc'
 };
 
+exports.Prisma.QueryMode = {
+  default: 'default',
+  insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
+};
+exports.LeaveType = exports.$Enums.LeaveType = {
+  ANNUAL: 'ANNUAL',
+  SPECIAL_PERMISSION: 'SPECIAL_PERMISSION',
+  SICK: 'SICK',
+  MATERNITY: 'MATERNITY',
+  HAJJ: 'HAJJ',
+  MARRIAGE: 'MARRIAGE',
+  BEREAVEMENT: 'BEREAVEMENT'
+};
+
+exports.LeaveStatus = exports.$Enums.LeaveStatus = {
+  PENDING: 'PENDING',
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED',
+  CANCELLED: 'CANCELLED'
+};
 
 exports.Prisma.ModelName = {
   User: 'User',
-  Employee: 'Employee'
+  Employee: 'Employee',
+  AnnualLeaveBalance: 'AnnualLeaveBalance',
+  LeaveRequest: 'LeaveRequest'
 };
 
 /**

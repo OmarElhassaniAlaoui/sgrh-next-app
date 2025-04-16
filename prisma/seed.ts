@@ -1,4 +1,5 @@
-import { PrismaClient, LeaveType } from "@prisma/client";
+import { Employee } from "@/types/employee-types";
+import { PrismaClient, LeaveType } from "../src/app/generated/prisma";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -129,7 +130,7 @@ async function main() {
     const randomEmployee =
       allEmployees[Math.floor(Math.random() * allEmployees.length)];
     const randomReplacement = allEmployees.find(
-      (e) => e.id !== randomEmployee.id
+      (e: Employee) => e.id !== randomEmployee.id
     );
     const randomType =
       leaveTypes[Math.floor(Math.random() * leaveTypes.length)];
