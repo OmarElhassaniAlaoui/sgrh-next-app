@@ -1,165 +1,25 @@
-import { create } from "zustand";
 import { Employee } from "@prisma/client";
+import { create } from "zustand";
 
-interface EmployeeState {
+export interface EmployeeStore {
   employees: Employee[];
-  isLoading: boolean;
-  error: string | null;
   fetchEmployees: () => Promise<void>;
-  addEmployee: (
-    employee: Omit<Employee, "id" | "createdAt" | "updatedAt">
-  ) => Promise<Employee>;
-  updateEmployee: (id: string, data: Partial<Employee>) => Promise<Employee>;
-  deleteEmployee: (id: string) => Promise<void>;
-  searchEmployees: (query: string) => Promise<Employee[]>;
-  filterEmployees: (filters: {
-    grade?: string;
-    ladder?: string;
-    service?: string;
-    division?: string;
-  }) => void;
 }
 
-export const useEmployeeStore = create<EmployeeState>()((set, get) => ({
+const useEmployeeStore = create<EmployeeStore>((set) => ({
   employees: [],
-  isLoading: false,
-  error: null,
-
   fetchEmployees: async () => {
-    set({ isLoading: true, error: null });
     try {
-      const response = await fetch("/api/employees");
-      if (!response.ok) throw new Error("Failed to fetch");
-      const employees = await response.json();
-      set({ employees, isLoading: false });
+      const employees = await fetch("/api/employees");
+      if (!employees.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const data = await employees.json();
+      set({ employees: data });
     } catch (error) {
-      set({
-        error:
-          error instanceof Error ? error.message : "Failed to fetch employees",
-        isLoading: false,
-      });
-    }
-  },
-
-  addEmployee: async (employee) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await fetch("/api/employees", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(employee),
-      });
-
-      if (!response.ok) throw new Error("Failed to add employee");
-
-      const newEmployee = await response.json();
-
-      set((state) => ({
-        employees: [...state.employees, newEmployee],
-        isLoading: false,
-      }));
-
-      return newEmployee;
-    } catch (error) {
-      set({
-        error:
-          error instanceof Error ? error.message : "Failed to add employee",
-        isLoading: false,
-      });
-      throw error;
-    }
-  },
-
-  updateEmployee: async (id, data) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await fetch(`/api/employees/${id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) throw new Error("Failed to update employee");
-
-      const updatedEmployee = await response.json();
-
-      set((state) => ({
-        employees: state.employees.map((emp) =>
-          emp.id === id ? updatedEmployee : emp
-        ),
-        isLoading: false,
-      }));
-
-      return updatedEmployee;
-    } catch (error) {
-      set({
-        error:
-          error instanceof Error ? error.message : "Failed to update employee",
-        isLoading: false,
-      });
-      throw error;
-    }
-  },
-
-  deleteEmployee: async (id) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await fetch(`/api/employees/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) throw new Error("Failed to delete employee");
-
-      set((state) => ({
-        employees: state.employees.filter((emp) => emp.id !== id),
-        isLoading: false,
-      }));
-    } catch (error) {
-      set({
-        error:
-          error instanceof Error ? error.message : "Failed to delete employee",
-        isLoading: false,
-      });
-      throw error;
-    }
-  },
-
-  searchEmployees: async (query) => {
-    try {
-      if (!query.trim()) return get().employees;
-
-      const results = get().employees.filter(
-        (emp) =>
-          emp.firstName.toLowerCase().includes(query.toLowerCase()) ||
-          emp.lastName.toLowerCase().includes(query.toLowerCase()) ||
-          emp.cin.toLowerCase().includes(query.toLowerCase()) ||
-          emp.ppr.toLowerCase().includes(query.toLowerCase())
-      );
-
-      return results;
-    } catch (error) {
-      console.error("Search failed:", error);
-      return [];
-    }
-  },
-
-  filterEmployees: (filters) => {
-    set({ isLoading: true });
-    try {
-      const { employees } = get();
-      const filtered = employees.filter((emp) => {
-        let match = true;
-        if (filters.grade && emp.grade !== filters.grade) match = false;
-        if (filters.ladder && emp.ladder !== filters.ladder) match = false;
-        if (filters.service && emp.service !== filters.service) match = false;
-        if (filters.division && emp.division !== filters.division)
-          match = false;
-        return match;
-      });
-
-      set({ employees: filtered, isLoading: false });
-    } catch (error) {
-      set({ error: "Failed to filter employees", isLoading: false });
+      console.error("Failed to fetch employees:", error);
     }
   },
 }));
+
+export default useEmployeeStore;
