@@ -4,6 +4,7 @@ import useEmployeeStore, { EmployeeStore } from "@/stores/employee.store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EmployeeDataTable } from "@/components/employee/data-table"; // Import the new data table component
+import Link from "next/link";
 
 const page = () => {
   const fetchEmployees = useEmployeeStore(
@@ -20,7 +21,11 @@ const page = () => {
         <CardHeader>
           <CardTitle className="flex flex-row justify-between items-center">
             <h1 className="text-2xl font-bold">Employees</h1>
-            <Button>Add Employee</Button>
+            <Button>
+              <Link className="" href="/employees/add">
+                Add Employee
+              </Link>
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent className="w-full">
