@@ -8,15 +8,24 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
+import { format } from "date-fns";
+import { CalendarIcon } from "@radix-ui/react-icons";
+import { cn } from "@/lib/utils";
+import { Button } from "./ui/button";
+import { Calendar } from "./ui/calendar";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { Checkbox } from "./ui/checkbox";
 import { Select, SelectContent, SelectTrigger, SelectValue } from "./ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 export enum FormFieldType {
   INPUT = "input",
   TEXTAREA = "textarea",
-  PHONE_INPUT = "phoneInput",
   CHECKBOX = "checkbox",
   DATE_PICKER = "datePicker",
   SELECT = "select",
@@ -38,7 +47,13 @@ interface CustomFormFieldProps {
   fieldType: FormFieldType;
 }
 
-const RenderInput = ({ field, props }: { field: any; props: CustomProps }) => {
+const RenderInput = ({
+  field,
+  props,
+}: {
+  field: any;
+  props: CustomFormFieldProps;
+}) => {
   switch (props.fieldType) {
     case FormFieldType.INPUT:
       return (
@@ -72,20 +87,7 @@ const RenderInput = ({ field, props }: { field: any; props: CustomProps }) => {
           />
         </FormControl>
       );
-    case FormFieldType.PHONE_INPUT:
-      return (
-        <FormControl>
-          <PhoneInput
-            defaultCountry="US"
-            placeholder={props.placeholder}
-            international
-            withCountryCallingCode
-            value={field.value as E164Number | undefined}
-            onChange={field.onChange}
-            className="input-phone"
-          />
-        </FormControl>
-      );
+
     case FormFieldType.CHECKBOX:
       return (
         <FormControl>
@@ -109,18 +111,44 @@ const RenderInput = ({ field, props }: { field: any; props: CustomProps }) => {
             height={24}
             width={24}
             alt="user"
-            className="ml-2"
+            className="ml-2" // Keep the calendar icon if desired, or remove if the button below includes one
           />
-          <FormControl>
-            <ReactDatePicker
-              showTimeSelect={props.showTimeSelect ?? false}
-              selected={field.value}
-              onChange={(date: Date) => field.onChange(date)}
-              timeInputLabel="Time:"
-              dateFormat={props.dateFormat ?? "MM/dd/yyyy"}
-              wrapperClassName="date-picker"
-            />
-          </FormControl>
+          <Popover>
+            <PopoverTrigger asChild>
+              <FormControl>
+                <Button
+                  variant={"outline"}
+                  className={cn(
+                    "w-full pl-3 text-left font-normal",
+                    !field.value && "text-muted-foreground"
+                  )}
+                  disabled={props.disabled}
+                >
+                  {field.value ? (
+                    format(field.value, props.dateFormat ?? "PPP")
+                  ) : (
+                    <span>{props.placeholder ?? "Pick a date"}</span>
+                  )}
+                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                </Button>
+              </FormControl>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={field.value}
+                onSelect={field.onChange}
+                disabled={
+                  (date) =>
+                    // Add any specific date disabling logic here if needed
+                    // e.g., date > new Date() || date < new Date("1900-01-01")
+                    props.disabled || false // Basic disabling based on props
+                }
+                initialFocus
+              />
+              {/* Add time selection here if props.showTimeSelect is true - requires more complex setup */}
+            </PopoverContent>
+          </Popover>
         </div>
       );
     case FormFieldType.SELECT:
