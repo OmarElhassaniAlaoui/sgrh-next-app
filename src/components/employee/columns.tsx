@@ -19,21 +19,15 @@ import { MoreHorizontal, Text } from "lucide-react";
 // You can use a Zod schema here if you want.
 
 export const columns: ColumnDef<Employee>[] = [
-  // {
-  //   accessorKey: "firstName",
-  //   header: ({ column }) => (
-  //     <DataTableColumnHeader column={column} title="First Name" />
-  //   ),
-  //   cell: ({ row }) => <div>{row.getValue("firstName")}</div>,
-  //   meta: {
-  //     label: "First Name",
-  //     placeholder: "Search first names...",
-  //     variant: "text",
-  //     icon: Text,
-  //   },
-  //   // enableColumnFilter: true, // Disable filter for firstName
-  //   enableSorting: true,
-  // },
+  {
+    accessorKey: "firstName",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="First Name" />
+    ),
+    cell: ({ row }) => <div>{row.getValue("firstName")}</div>,
+    // enableColumnFilter: true, // Disable filter for firstName
+    enableSorting: true,
+  },
   {
     accessorKey: "lastName",
     header: ({ column }) => (
