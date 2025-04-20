@@ -3,6 +3,7 @@
 import type { Column, Table } from "@tanstack/react-table";
 import { X } from "lucide-react";
 import * as React from "react";
+import { Employee } from "@/app/generated/prisma"; // Import Employee
 
 import { DataTableDateFilter } from "@/components/data-table-date-filter";
 import { DataTableFacetedFilter } from "@/components/data-table-faceted-filter";
@@ -11,22 +12,25 @@ import { DataTableViewOptions } from "@/components/data-table-view-options";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { EmployeeExport } from "@/components/employee/employee-export"; // Import EmployeeExport
 
 interface DataTableToolbarProps<TData> extends React.ComponentProps<"div"> {
   table: Table<TData>;
+  employees: Employee[]; // Add employees prop
 }
 
 export function DataTableToolbar<TData>({
   table,
   children,
   className,
+  employees, // Add employees prop
   ...props
 }: DataTableToolbarProps<TData>) {
   const isFiltered = table.getState().columnFilters.length > 0;
 
   const columns = React.useMemo(
     () => table.getAllColumns().filter((column) => column.getCanFilter()),
-    [table],
+    [table]
   );
 
   const onReset = React.useCallback(() => {
@@ -39,7 +43,7 @@ export function DataTableToolbar<TData>({
       aria-orientation="horizontal"
       className={cn(
         "flex w-full items-start justify-between gap-2 p-1",
-        className,
+        className
       )}
       {...props}
     >
@@ -62,6 +66,7 @@ export function DataTableToolbar<TData>({
       </div>
       <div className="flex items-center gap-2">
         {children}
+        <EmployeeExport employees={employees} />
         <DataTableViewOptions table={table} />
       </div>
     </div>
