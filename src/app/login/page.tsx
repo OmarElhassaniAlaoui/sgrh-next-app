@@ -11,8 +11,12 @@ import { useFormStatus } from "react-dom";
 
 export default function LoginPage({
   className,
+  searchParams, // Destructure searchParams to avoid passing it to the div
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
+}: {
+  className?: string;
+  searchParams?: { [key: string]: string | string[] | undefined };
+} & React.HTMLAttributes<HTMLDivElement>) {
   const [state, loginAction] = useActionState(login, undefined);
   const { pending } = useFormStatus();
   return (
@@ -21,7 +25,7 @@ export default function LoginPage({
         "flex min-h-screen items-center justify-center bg-background",
         className
       )}
-      {...props}
+      {...props} // Pass the remaining props
     >
       <Card className="overflow-hidden w-full max-w-4xl">
         <CardContent className="grid p-0 md:grid-cols-2">
@@ -56,7 +60,6 @@ export default function LoginPage({
                     id="password"
                     name="password"
                     type="password"
-                    placeholder="••••••••"
                     required
                     disabled={pending}
                   />
