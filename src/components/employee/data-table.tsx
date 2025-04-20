@@ -24,9 +24,14 @@ import { Input } from "@/components/ui/input"; // Import Input for search
 interface EmployeeDataTableProps {
   data: Employee[];
   pageCount: number; // Add pageCount prop
+  employees: Employee[]; // Add employees prop
 }
 
-export function EmployeeDataTable({ data, pageCount }: EmployeeDataTableProps) {
+export function EmployeeDataTable({
+  data,
+  pageCount,
+  employees,
+}: EmployeeDataTableProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -165,7 +170,7 @@ export function EmployeeDataTable({ data, pageCount }: EmployeeDataTableProps) {
       {/* Use the generic DataTable component */}
       <DataTable table={table}>
         {/* Use the generic DataTableToolbar */}
-        <DataTableToolbar table={table}>
+        <DataTableToolbar table={table} employees={employees}>
           {/* Add Server-side Search Input */}
           <Input
             placeholder="Rechercher (nom, CIN, PPR...)"

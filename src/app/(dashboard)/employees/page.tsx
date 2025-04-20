@@ -82,6 +82,7 @@ const EmployeesPage = async ({ searchParams }: EmployeesPageProps) => {
           <EmployeeDataTable
             data={employees}
             pageCount={pageCount}
+            employees={employees} // Pass employees to DataTable
             // Pass other necessary props like column definitions if they are dynamic
           />
         </CardContent>
