@@ -8,7 +8,7 @@ import {
   FormLabel,
   FormMessage,
 } from "./ui/form";
-import { format } from "date-fns";
+import { format, parse } from "date-fns";
 import { CalendarIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
@@ -105,51 +105,27 @@ const RenderInput = ({
       );
     case FormFieldType.DATE_PICKER:
       return (
-        <div className="flex rounded-md border border-dark-500 bg-dark-400">
-          <Image
-            src="/assets/icons/calendar.svg"
-            height={24}
-            width={24}
-            alt="user"
-            className="ml-2" // Keep the calendar icon if desired, or remove if the button below includes one
+        <FormControl>
+          <Input
+            placeholder={props.placeholder}
+            {...field}
+            className="shad-input border-0"
+            onChange={(e) => {
+              const dateString = e.target.value;
+              // Parse the date string and update the form value
+              const parsedDate = parse(
+                dateString,
+                props.dateFormat || "dd/MM/yyyy",
+                new Date()
+              );
+              if (!isNaN(parsedDate.getTime())) {
+                field.onChange(parsedDate);
+              } else {
+                field.onChange(undefined); // Or handle invalid date as needed
+              }
+            }}
           />
-          <Popover>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-full pl-3 text-left font-normal",
-                    !field.value && "text-muted-foreground"
-                  )}
-                  disabled={props.disabled}
-                >
-                  {field.value ? (
-                    format(field.value, props.dateFormat ?? "PPP")
-                  ) : (
-                    <span>{props.placeholder ?? "Pick a date"}</span>
-                  )}
-                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                </Button>
-              </FormControl>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={field.value}
-                onSelect={field.onChange}
-                disabled={
-                  (date) =>
-                    // Add any specific date disabling logic here if needed
-                    // e.g., date > new Date() || date < new Date("1900-01-01")
-                    props.disabled || false // Basic disabling based on props
-                }
-                initialFocus
-              />
-              {/* Add time selection here if props.showTimeSelect is true - requires more complex setup */}
-            </PopoverContent>
-          </Popover>
-        </div>
+        </FormControl>
       );
     case FormFieldType.SELECT:
       return (
