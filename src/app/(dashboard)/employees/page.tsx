@@ -34,7 +34,7 @@ const EmployeesPage = async ({ searchParams }: EmployeesPageProps) => {
     service = "",
     grade = "",
     ladder = "",
-  } = searchParams || {};
+  } = (await searchParams) || {};
 
   // Default values for pagination and sorting can be added here if needed
   const page = Number(pageParam);
