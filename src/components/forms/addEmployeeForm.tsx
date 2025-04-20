@@ -34,6 +34,7 @@ const AddEmployeeForm = () => {
       phone: "",
       dateOfBirth: undefined, // Use undefined for optional date string
       gender: "",
+      decisionNumber: "",
     },
   });
 
@@ -51,7 +52,9 @@ const AddEmployeeForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+        }),
       });
 
       if (!response.ok) {
@@ -162,8 +165,22 @@ const AddEmployeeForm = () => {
             {/* Add SelectItem components here using shadcn/ui */}
             <SelectItem value="male">Male</SelectItem>
             <SelectItem value="female">Female</SelectItem>
-            <SelectItem value="other">Other</SelectItem>
           </CustomFormField>
+          <CustomFormField
+            fieldType={FormFieldType.INPUT}
+            control={form.control}
+            name="decisionNumber"
+            label="Decision Number (Optional)"
+            placeholder="Enter decision number"
+          />
+          <CustomFormField
+            fieldType={FormFieldType.DATE_PICKER}
+            control={form.control}
+            name="decisionDate"
+            label="Decision Date (Optional)"
+            placeholder="Select decision date"
+            dateFormat="yyyy-MM-dd"
+          />
         </div>
         <CustomFormField
           fieldType={FormFieldType.TEXTAREA}

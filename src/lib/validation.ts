@@ -14,4 +14,6 @@ export const addEmployeeValidationSchema = z.object({
   phone: z.string().optional(),
   dateOfBirth: z.date().optional(),
   gender: z.string().optional(),
+  decisionNumber: z.string().optional(),
+  decisionDate: z.date().optional(),
 });
