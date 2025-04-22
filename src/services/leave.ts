@@ -3,7 +3,7 @@ import {
   LeaveRequest,
   LeaveType,
   LeaveStatus,
-} from "@prisma/client";
+} from "../app/generated/prisma";
 import { calculateWorkingDays } from "@/utils/date-utils";
 
 const prisma = new PrismaClient();
